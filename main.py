@@ -175,3 +175,5 @@ async def get_energy_recommendation(log: EnergyLogInput):
 @app.get("/")
 async def root():
     return {"message": "Carbon AI Service is Online"}
+
+
