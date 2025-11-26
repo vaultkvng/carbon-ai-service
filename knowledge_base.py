@@ -1,65 +1,81 @@
 # knowledge_base.py
+# TEAMMATE INSTRUCTIONS:
+# 1. Add new items to FACTOR_DB for emission factors.
+# 2. Add new tips to TIPS_DB for recommendations.
+# 3. DO NOT change the 'lookup_factor' function at the bottom.
+# 4. Watch out for commas at the end of every line!
 
 # --- PART 1: EMISSION FACTORS ---
-# Format: "item_key": {"factor": float, "unit": str, "source": str}
-# Factors should be in kgCO2 per [Standard Unit]
+# Format: "item name": {"factor": NUMBER, "unit": "UNIT", "source": "Where you found it"}
+# Units MUST be: "kgCO2_per_kg", "kgCO2_per_km", "kgCO2_per_kWh", or "kgCO2_per_liter"
+
 FACTOR_DB = {
-    # FOOD (kgCO2 per kg)
+    # === EXAMPLE ENTRIES (COPY PASTE THESE FORMATS) ===
     "beef": {"factor": 60.0, "unit": "kgCO2_per_kg", "source": "Global Livestock Data"},
-    "shrimp": {"factor": 12.0, "unit": "kgCO2_per_kg", "source": "Ocean Friendly"},
-    "shrimp pasta": {"factor": 4.3, "unit": "kgCO2_per_kg", "source": "Composite Meal Est."},
-    "rice": {"factor": 4.0, "unit": "kgCO2_per_kg", "source": "Agri-Stats"},
+    "generator_diesel": {"factor": 1.27, "unit": "kgCO2_per_kWh", "source": "Diesel Emission Factor"},
     
-    # TRANSPORT (kgCO2 per km)
-    "quad bike": {"factor": 0.45, "unit": "kgCO2_per_km", "source": "Offroad Vehicle Est."},
-    "bus": {"factor": 0.1, "unit": "kgCO2_per_km", "source": "Public Transport"},
-    
-    # ENERGY (kgCO2 per kWh)
-    "industrial sewing machine": {"factor": 0.5, "unit": "kgCO2_per_kWh", "source": "Industrial Grid Avg"},
-    
-    # WATER (kgCO2 per Liter)
-    "spa tub": {"factor": 0.005, "unit": "kgCO2_per_liter", "source": "Water Heating Est."}
+    # === FOOD (Add Nigerian items here) ===
+    "jollof rice": {"factor": 4.5, "unit": "kgCO2_per_kg", "source": "Rice + Oil estimate"},
+    "pounded yam": {"factor": 1.8, "unit": "kgCO2_per_kg", "source": "Root vegetable processing"},
+    # [TEAMMATE: ADD 20 MORE FOODS HERE]
+
+
+    # === TRANSPORT (Add Vehicles here) ===
+    "danfo bus": {"factor": 0.15, "unit": "kgCO2_per_km", "source": "Diesel Minibus Est."},
+    "keke napep": {"factor": 0.08, "unit": "kgCO2_per_km", "source": "Tricycle Est."},
+    # [TEAMMATE: ADD 10 MORE VEHICLES HERE]
+
+
+    # === ENERGY & APPLIANCES ===
+    "standing fan": {"factor": 0.05, "unit": "kgCO2_per_kWh", "source": "Low wattage appliance"},
+    "ironing": {"factor": 0.8, "unit": "kgCO2_per_kWh", "source": "Heating element"},
+    # [TEAMMATE: ADD 10 MORE APPLIANCES HERE]
+
 }
 
+
 # --- PART 2: RECOMMENDATION LIBRARY ---
-# Tips categorized by domain
+# Format: {"title": "Short Tip Text", "savings": Estimated_kg_saved_per_week}
+
 TIPS_DB = {
     "FOOD": [
-        {"title": "Try Meatless Mondays", "savings": 1.5},
-        {"title": "Reduce seafood meals to once weekly", "savings": 1.1},
-        {"title": "Buy local produce to cut transport carbon", "savings": 0.5}
+        {"title": "Try Meatless Mondays to cut carbon", "savings": 1.5},
+        {"title": "Swap imported rice for local Ofada rice", "savings": 0.3},
+        # [TEAMMATE: ADD 10 FOOD TIPS]
     ],
+
     "TRANSPORT": [
-        {"title": "Switch 1 short trip from driving to walking", "savings": 0.6},
-        {"title": "Carpool for your commute", "savings": 2.0},
-        {"title": "Check tire pressure to improve fuel efficiency", "savings": 0.2}
+        {"title": "Share a ride (Carpool) to work", "savings": 2.0},
+        {"title": "Walk for trips under 2km", "savings": 0.5},
+        # [TEAMMATE: ADD 10 TRANSPORT TIPS]
     ],
+
     "ENERGY": [
-        {"title": "Turn off AC 30 minutes earlier", "savings": 0.3},
-        {"title": "Unplug 'vampire' electronics at night", "savings": 0.1},
-        {"title": "Switch to LED bulbs", "savings": 0.15}
+        {"title": "Turn off the stabilizer when not in use", "savings": 0.2},
+        {"title": "Use natural light instead of bulbs during the day", "savings": 0.1},
+        # [TEAMMATE: ADD 10 ENERGY TIPS]
     ],
+
     "WATER": [
-        {"title": "Take shorter showers (under 5 mins)", "savings": 0.2},
-        {"title": "Fix leaking taps immediately", "savings": 0.1}
+        {"title": "Turn off the tap while brushing teeth", "savings": 0.1},
+        # [TEAMMATE: ADD 5 WATER TIPS]
     ]
 }
 
+# --- DO NOT EDIT BELOW THIS LINE ---
 def lookup_factor(item_name: str, category: str):
-    """Fuzzy search for an item."""
     key = item_name.lower().strip()
     
     # 1. Exact Match
     if key in FACTOR_DB:
         return FACTOR_DB[key]
     
-    # 2. Partial Match (e.g., "shrimp" inside "shrimp pasta")
-    # Simple logic: return the first key that exists in the input
+    # 2. Partial Match
     for db_key in FACTOR_DB:
         if db_key in key:
             return FACTOR_DB[db_key]
             
-    # 3. Category Default (Fallback)
+    # 3. Fallback Defaults
     defaults = {
         "FOOD": {"factor": 3.0, "unit": "kgCO2_per_kg", "source": "Average Food Item"},
         "TRANSPORT": {"factor": 0.2, "unit": "kgCO2_per_km", "source": "Average Vehicle"},
