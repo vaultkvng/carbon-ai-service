@@ -17,6 +17,9 @@ FACTOR_DB = {
     # === FOOD (Add Nigerian items here) ===
     "jollof rice": {"factor": 4.5, "unit": "kgCO2_per_kg", "source": "Rice + Oil estimate"},
     "pounded yam": {"factor": 1.8, "unit": "kgCO2_per_kg", "source": "Root vegetable processing"},
+    "shrimp": {"factor": 12.0, "unit": "kgCO2_per_kg", "source": "Ocean Friendly"},
+    "shrimp pasta": {"factor": 4.3, "unit": "kgCO2_per_kg", "source": "Composite Meal Est."},
+    "rice": {"factor": 4.0, "unit": "kgCO2_per_kg", "source": "Agri-Stats"},
     # [TEAMMATE: ADD 20 MORE FOODS HERE]
 
 
@@ -41,23 +44,27 @@ TIPS_DB = {
     "FOOD": [
         {"title": "Try Meatless Mondays to cut carbon", "savings": 1.5},
         {"title": "Swap imported rice for local Ofada rice", "savings": 0.3},
+        {"title": "Buy local produce to cut transport carbon", "savings": 0.5}
         # [TEAMMATE: ADD 10 FOOD TIPS]
     ],
 
     "TRANSPORT": [
         {"title": "Share a ride (Carpool) to work", "savings": 2.0},
         {"title": "Walk for trips under 2km", "savings": 0.5},
+        {"title": "Check tire pressure to improve fuel efficiency", "savings": 0.2}
         # [TEAMMATE: ADD 10 TRANSPORT TIPS]
     ],
 
     "ENERGY": [
         {"title": "Turn off the stabilizer when not in use", "savings": 0.2},
         {"title": "Use natural light instead of bulbs during the day", "savings": 0.1},
+        {"title": "Switch to LED bulbs", "savings": 0.15}
         # [TEAMMATE: ADD 10 ENERGY TIPS]
     ],
 
     "WATER": [
         {"title": "Turn off the tap while brushing teeth", "savings": 0.1},
+        {"title": "Fix leaking taps immediately", "savings": 0.1}  
         # [TEAMMATE: ADD 5 WATER TIPS]
     ]
 }
