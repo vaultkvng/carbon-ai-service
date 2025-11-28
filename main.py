@@ -1,11 +1,27 @@
+import os
+import json
+import google.generativeai as genai
 from fastapi import FastAPI
 from pydantic import BaseModel
 from typing import List, Optional, Dict
 import knowledge_base
 
-app = FastAPI(title="Carbon AI Service", version="2.0")
+# --- CONFIGURATION ---
+# TODO: Replace with your actual key from https://aistudio.google.com/app/apikey
+os.environ["GEMINI_API_KEY"] = "AIzaSyDyo0mAI0WxV6Y3bkLcMaH_xbasUNJMNOI"
 
-# --- USE CASE 1 MODELS ---
+# Configure AI (Safely)
+try:
+    genai.configure(api_key=os.environ["GEMINI_API_KEY"])
+    model = genai.GenerativeModel('gemini-1.5-flash')
+    HAS_LLM = True
+except Exception:
+    HAS_LLM = False
+    print("⚠️ Warning: Gemini API Key not found. LLM Fallback disabled.")
+
+app = FastAPI(title="Carbon AI Service", version="2.5")
+
+# --- DATA MODELS ---
 class CustomItemRequest(BaseModel):
     category: str
     customItem: str
@@ -21,7 +37,6 @@ class CustomItemResponse(BaseModel):
     confidence: float
     sourceNote: str
 
-# --- USE CASE 2 MODELS ---
 class DailyEmission(BaseModel):
     date: str
     co2: float
@@ -33,7 +48,7 @@ class WeeklySummaryRequest(BaseModel):
     currentWeekTotal: float
     lastWeekTotal: float
     percentageChange: float
-    categoryBreakdown: Dict[str, float] # e.g., {"FOOD": 5.2, "ENERGY": 4.0}
+    categoryBreakdown: Dict[str, float]
     dailyEmissions: List[DailyEmission]
     notes: Optional[str] = None
 
@@ -57,57 +72,80 @@ class WeeklySummaryResponse(BaseModel):
     recommendations: List[RecommendationItem]
     nextBestAction: NextBestAction
 
+# --- HELPER FUNCTIONS ---
+async def get_llm_fallback(item_name, category):
+    """Asks Gemini to estimate a carbon factor."""
+    if not HAS_LLM:
+        return {"factor": 0.0, "unit": "unknown"}
+        
+    print(f"🤖 CSV miss. Asking Gemini for '{item_name}'...")
+    prompt = f"""
+    Act as an environmental engineer. 
+    Estimate the carbon emission factor for '{item_name}' in the category '{category}'.
+    
+    RULES:
+    1. Return ONLY a valid JSON object. Do not write markdown.
+    2. JSON Format: {{"factor": <number>, "unit": "kgCO2e/unit"}}
+    3. Use global averages.
+    """
+    try:
+        response = model.generate_content(prompt)
+        text = response.text.replace("```json", "").replace("```", "").strip()
+        return json.loads(text)
+    except Exception as e:
+        print(f"❌ Gemini Error: {e}")
+        return {"factor": 0.0, "unit": "unknown"}
 
 # --- ENDPOINTS ---
 
 @app.post("/api/v1/get-factor", response_model=CustomItemResponse)
 async def get_emission_factor(req: CustomItemRequest):
-    # 1. Look up the item in our library
+    # LAYER 1: Local Knowledge Base (High Accuracy)
     data = knowledge_base.lookup_factor(req.customItem, req.category)
     
-    # 2. Logic to adjust units if necessary
-    # (For MVP, we assume the factor DB matches the standard unit for simplicity)
-    # If input was "grams" but DB is "kg", we divide factor by 1000
-    factor = data['factor']
-    unit_str = data['unit']
+    if data['factor'] > 0:
+        # Construct Source Note (Source + Advice)
+        full_note = data.get('source', 'Local Database')
+        if data.get('note'):
+            full_note += f" ({data['note']})"
+            
+        return CustomItemResponse(
+            item=req.customItem,
+            category=req.category,
+            estimatedEmissionFactor=data['factor'],
+            unit=data['unit'],
+            confidence=0.9,
+            sourceNote=full_note
+        )
+
+    # LAYER 2: LLM Wrapper (Fallback)
+    llm_data = await get_llm_fallback(req.customItem, req.category)
+    confidence = 0.4 if llm_data['factor'] > 0 else 0.0
     
-    if req.unit.lower() in ["grams", "g"] and "per_kg" in unit_str:
-        factor = factor / 1000
-        unit_str = "kgCO2_per_gram"
-
-    # 3. Determine confidence (Simple logic)
-    # If source is "Average...", confidence is lower
-    confidence = 0.5 if "Average" in data['source'] else 0.85
-
     return CustomItemResponse(
         item=req.customItem,
         category=req.category,
-        estimatedEmissionFactor=factor,
-        unit=unit_str,
-        confidence=confidence,
-        sourceNote=data['source']
+        estimatedEmissionFactor=llm_data['factor'],
+        unit=llm_data.get('unit', 'kgCO2e/unit'),
+        confidence=confidence, 
+        sourceNote="AI Estimation (Gemini)"
     )
-
 
 @app.post("/api/v1/analyze-week", response_model=WeeklySummaryResponse)
 async def analyze_weekly_summary(req: WeeklySummaryRequest):
-    # 1. Analyze Trend
+    # 1. Trend Analysis
     if req.percentageChange < 0:
-        trend_text = f"Your emissions decreased by {abs(req.percentageChange)}% compared to last week. Great job!"
+        trend_text = f"Your emissions decreased by {abs(req.percentageChange)}% compared to last week."
     else:
-        trend_text = f"Your emissions increased by {req.percentageChange}% compared to last week."
+        trend_text = f"Your emissions increased by {req.percentageChange}%."
 
-    # 2. Find Highest Category (FIXED LINE)
+    # 2. Identify Highest Category
     highest_cat = max(req.categoryBreakdown, key=lambda k: req.categoryBreakdown[k])
     highest_val = req.categoryBreakdown[highest_cat]
 
-    # 3. Generate Key Observation
-    observation = f"{highest_cat} was your biggest contributor ({highest_val}kg CO2)."
-
-    # 4. Generate Recommendations (Rule Engine)
+    # 3. Recommendations Strategy
     recs = []
-    
-    # Add top tip from highest category
+    # Top tip for highest category
     top_cat_tips = knowledge_base.TIPS_DB.get(highest_cat, [])
     if top_cat_tips:
         recs.append(RecommendationItem(
@@ -115,8 +153,8 @@ async def analyze_weekly_summary(req: WeeklySummaryRequest):
             estimatedSavingsPerWeek=top_cat_tips[0]['savings'],
             category=highest_cat
         ))
-
-    # Add tips from other categories to fill up to 3
+    
+    # Fill remaining slots with other categories
     for cat, tips in knowledge_base.TIPS_DB.items():
         if cat != highest_cat and len(recs) < 3 and tips:
              recs.append(RecommendationItem(
@@ -125,19 +163,14 @@ async def analyze_weekly_summary(req: WeeklySummaryRequest):
                 category=cat
             ))
 
-    # 5. Determine Next Best Action (The highest impact item)
-    # Simply pick the recommendation with the highest savings
-    if recs:
-        best_rec = max(recs, key=lambda x: x.estimatedSavingsPerWeek)
-    else:
-        # Fallback if no tips found
-        best_rec = RecommendationItem(title="Keep logging data", estimatedSavingsPerWeek=0.0, category="GENERAL")
+    # 4. Next Best Action
+    best_rec = max(recs, key=lambda x: x.estimatedSavingsPerWeek) if recs else RecommendationItem(title="Keep logging", estimatedSavingsPerWeek=0, category="General")
 
     return WeeklySummaryResponse(
         weeklyInsights=WeeklyInsights(
             trend=trend_text,
             highestCategory=highest_cat,
-            keyObservation=observation
+            keyObservation=f"{highest_cat} was your biggest contributor ({highest_val}kg)."
         ),
         recommendations=recs,
         nextBestAction=NextBestAction(
