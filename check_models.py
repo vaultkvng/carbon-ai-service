@@ -1,10 +1,17 @@
 import google.generativeai as genai
 import os
+from dotenv import load_dotenv
 
-# Paste your NEW key here (the one you just made)
-os.environ["GEMINI_API_KEY"] = "AIzaSyCb_mkOlRt1FN59cFCVM-uQfM5SntqJLc4"
+# 1. Load the hidden key from .env
+load_dotenv()
+api_key = os.getenv("GEMINI_API_KEY")
 
-genai.configure(api_key=os.environ["GEMINI_API_KEY"]) # type: ignore
+if not api_key:
+    print("❌ Error: GEMINI_API_KEY not found in .env file.")
+    exit()
+
+# 2. Configure Gemini
+genai.configure(api_key=api_key) # type: ignore
 
 print("🔍 Checking available models for your API key...")
 try:
