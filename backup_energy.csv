@@ -1,0 +1,58 @@
+Appliance,Factor,Unit,Source
+Blender,0.4,kgCO2_per_kWh,Motor rating (avg 400W)
+Food Processor,0.6,kgCO2_per_kWh,Motor rating (avg 600W)
+Rice Cooker,0.7,kgCO2_per_kWh,Heating element
+Deep Fryer,1.5,kgCO2_per_kWh,Rapid heating oil element
+Dishwasher,1.2,kgCO2_per_kWh,Water heating & pumping
+Refrigerator,0.15,kgCO2_per_kWh,Compressor cycle (avg)
+Freezer,0.2,kgCO2_per_kWh,Compressor cycle
+Microwave Oven,1.2,kgCO2_per_kWh,Magnetron generation
+Electric Stove Burner,1.5,kgCO2_per_kWh,Resistance heating
+Toaster,0.8,kgCO2_per_kWh,Nichrome wire heating
+Coffee Maker,1.0,kgCO2_per_kWh,Water heating element
+Electric Kettle,2.0,kgCO2_per_kWh,Rapid boiling element
+Water Purifier,0.03,kgCO2_per_kWh,UV/Pump filtration
+Washing Machine,0.5,kgCO2_per_kWh,Motor & water heating
+Clothes Dryer,3.0,kgCO2_per_kWh,Air heating & tumbling
+Vacuum Cleaner,1.4,kgCO2_per_kWh,Suction motor
+Steam Mop,1.2,kgCO2_per_kWh,Steam generation
+Iron,1.0,kgCO2_per_kWh,Resistive heating
+Air Conditioner Split,1.5,kgCO2_per_kWh,Compressor cooling
+Air Conditioner Window,1.0,kgCO2_per_kWh,Compressor cooling
+Space Heater,1.5,kgCO2_per_kWh,Ceramic/Oil heating
+Ceiling Fan,0.07,kgCO2_per_kWh,Motor rotation
+Standing Fan,0.05,kgCO2_per_kWh,Motor rotation
+Dehumidifier,0.5,kgCO2_per_kWh,Compressor & fan
+Humidifier,0.05,kgCO2_per_kWh,Ultrasonic mist
+Electric Blanket,0.2,kgCO2_per_kWh,Wire heating
+Television LED,0.1,kgCO2_per_kWh,Display panel
+Sound System,0.08,kgCO2_per_kWh,Amplifier
+Gaming Console,0.15,kgCO2_per_kWh,GPU/CPU processing
+Streaming Device,0.005,kgCO2_per_kWh,Processing
+Desktop Computer,0.2,kgCO2_per_kWh,Power supply unit
+Laptop Charging,0.06,kgCO2_per_kWh,Battery charging
+Wifi Router,0.01,kgCO2_per_kWh,Signal transmission
+Smart Speaker,0.003,kgCO2_per_kWh,Standby/Active
+LED Bulb,0.01,kgCO2_per_kWh,Diode lighting
+CFL Bulb,0.015,kgCO2_per_kWh,Gas discharge
+Incandescent Bulb,0.06,kgCO2_per_kWh,Filament heating
+Hair Dryer,1.5,kgCO2_per_kWh,Blowing & heating
+Electric Shaver,0.015,kgCO2_per_kWh,Motor charging
+Facial Steamer,0.28,kgCO2_per_kWh,Steam generation
+Hair Straightener,0.1,kgCO2_per_kWh,Ceramic heating
+Photocopier,0.6,kgCO2_per_kWh,Fuser & scanner
+Server Rack,4.0,kgCO2_per_kWh,Data processing/cooling
+Office Desktop,0.15,kgCO2_per_kWh,Standard processing
+Projector,0.3,kgCO2_per_kWh,Lamp & cooling fan
+Commercial Freezer,0.8,kgCO2_per_kWh,Heavy duty compressor
+Water Dispenser,0.6,kgCO2_per_kWh,Heating & cooling
+Elevator,5.0,kgCO2_per_kWh,Motor hoisting (avg)
+Diesel Generator Home,2.7,kgCO2_per_hour,Diesel combustion (~1L/hr)
+Petrol Generator Small,0.7,kgCO2_per_hour,Petrol combustion
+LPG Stove Burner,0.4,kgCO2_per_hour,LPG combustion
+Kerosene Stove,0.5,kgCO2_per_hour,Kerosene combustion
+Lantern Wick,0.08,kgCO2_per_hour,Kerosene wick burn
+Charcoal Stove,1.5,kgCO2_per_hour,Charcoal oxidation
+Smartphone Charging,0.005,kgCO2_per_kWh,5W Adapter
+Electric Garage Opener,0.5,kgCO2_per_kWh,Motor lift
+Aquarium Heater,0.1,kgCO2_per_kWh,Resistive water heat

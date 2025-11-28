@@ -1,0 +1,25 @@
+Item,Carbon Factor,Unit,Source
+Walking,0,kgCO2_per_km,IPCC / EPA
+Bicycle,0.005,kgCO2_per_km,IPCC / EPA
+Keke Napep (Tricycle),0.12,kgCO2_per_km,ResearchGate (Damaturu Study)
+Korope (Mini Shuttle),0.154,kgCO2_per_km,Suzuki Every Specs / EPA
+Danfo (Commercial Bus),0.252 - 0.324,kgCO2_per_km,World Bank / Lagos Transport
+BRT Bus (Lagos),0.75,kgCO2_per_km,Lagos LAMATA / World Bank
+Uber / Bolt (Sedan),0.19,kgCO2_per_km,UK Gov / EPA 2023
+Okada (Motorcycle),0.08,kgCO2_per_km,Thrust Carbon / EPA
+Private Car (Sedan),0.19,kgCO2_per_km,UK Gov / EPA 2023
+Private SUV (Jeep),0.26,kgCO2_per_km,ICAO Carbon Calculator
+Electric Car (Solar Charged),0,kgCO2_per_km,IPCC / EPA
+Electric Car (Grid Charged),0.053,kgCO2_per_km,Nigeria Data 2024 & IEA
+Electric Bus (JET Mover EV),0.154,kgCO2_per_km,"ET Motor Co / Unilag IPP,Nigerian-assembled EV. Charged via Campus Gas Grid."
+Train (Diesel - NRC),0.041,kgCO2_per_km,NRC / Diesel Rail Est.
+Metro (Electric - Blue Line),3.6,kgCO2_per_km,Electric Rail Est.
+Canoe (Paddle),0,kgCO2_per_km,Estimation
+Public Ferry (Lagferry),9.5,kgCO2_per_km,DEFRA / UK Gov
+Speedboat,5.4,kgCO2_per_km,Marine Carbon Est.
+Cruise Ship,500,kgCO2_per_km,ICCT
+Domestic Flight (Eco),36.9,kgCO2_per_km,ICAO / EPA 2023
+International Flight (Eco),44.4,kgCO2_per_km,ICAO / EPA 2023
+Business Class,9,kgCO2_per_km,World Bank
+Private Jet,10,kgCO2_per_km,Transport & Environment
+Helicopter,17.5,kgCO2_per_km,Carbon Independent

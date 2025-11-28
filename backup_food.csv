@@ -1,0 +1,59 @@
+Item,Carbon Factor,Unit,Source
+Ofe Oha (Ora Soup),10.2,kgCO₂e/kg,Poore & Nemecek 2018
+Ofe Nsala (White Soup),2.7,kgCO₂e/kg,Poore & Nemecek 2018
+Ofe AkgCO2_per_kWhu (Palm Nut Stew),13.4,kgCO₂e/kg,Poore & Nemecek 2018
+Ofe Egusi,10.8,kgCO₂e/kg,Poore & Nemecek 2018
+Ofe Owerri,12.6,kgCO₂e/kg,Poore & Nemecek 2018
+Ofe Okazi/Ukazi,10.7,kgCO₂e/kg,Poore & Nemecek 2018
+Ofe Achara (with Akpuruakpu Egusi),10.8,kgCO₂e/kg,Poore & Nemecek 2018
+Ofe OkgCO2_per_kWhuru (Okra Soup),7.4,kgCO₂e/kg,Poore & Nemecek 2018
+Ofe Ujuju,3.9,kgCO₂e/kg,Poore & Nemecek 2018
+Ji Mmiri Oku (Yam Pepper Soup),4.9,kgCO₂e/kg,Poore & Nemecek 2018
+Onugbu soup(Bitter leaf),11.85,kgCO₂e/kg,Poore & Nemecek 2019 
+Abacha,1.48,kgCO₂e/kg,Poore & Nemecek 2018
+NkgCO2_per_kWhobi,11.06,kgCO₂e/kg,Poore & Nemecek 2018
+Okpa,0.36,kgCO₂e/kg,Poore & Nemecek 2018
+UkgCO2_per_kWha,1.58,kgCO₂e/kg,Poore & Nemecek 2018
+Roasted yam,0.105,kgCO₂e/kg,Poore & Nemecek 2018
+Yam porridge,1.12,kgCO₂e/kg,Poore & Nemecek 2018
+Vegetable soup,0.42,kgCO₂e/kg,Poore & Nemecek 2018
+Akpu/Fufu/Loiloi,0.105,kgCO₂e/kg,Poore & Nemecek 2018
+Garri/Eba,0.105,kgCO₂e/kg,Poore & Nemecek 2018
+Jollof Rice,1.38,kgCO₂e/kg,Poore & Nemecek 2018
+Fried Rice,1.53,kgCO₂e/kg,Poore & Nemecek 2018
+Moi Moi (Bean Pudding),1.39,kgCO₂e/kg,Poore & Nemecek 2018
+Akara (Bean Cake),1.08,kgCO₂e/kg,Poore & Nemecek 2018
+Ofada Rice & Ayamase,8.83,kgCO₂e/kg,Poore & Nemecek 2018
+Suya (beef skewers),~ 6.2 – 9.8,kgCO₂e/kg,Poore & Nemecek 2018 + estimated charcoal smoke
+Kilishi (dried/smoked meat jerky),~ 5.33,kgCO₂e/kg,Poore & Nemecek 2018 + estimated charcoal smoke
+Roasted yam / roasted plantain,~ 1.2 – 4.9,kgCO₂e/kg,FAO life cycle data
+Roasted fish / Smoked fish (typical serving),~ 2.2 – 6.8,kgCO₂e/kg,Charcoal LCA & combustion data from charcoal studies.
+Smoked sausage / grilled sausage,~ 4.2 – 9.8,kgCO₂e/kg,Charcoal LCA & combustion data from charcoal studies.
+Charcoal‑grilled chicken (drumstick / quarter),~ 4.2 – 8.8,kgCO₂e/kg,Charcoal LCA & combustion data from charcoal studies.
+Mixed grilled meat plate (beef + fish + plantain/veg),~ 6.2 – 11.8,kgCO₂e/kg,Charcoal LCA & combustion data from charcoal studies.
+Edikang Ikong,12.6,kgCO₂e/kg,Poore & Nemecek 2018
+Afang Soup,10.9,kgCO₂e/kg,Poore & Nemecek 2018
+Banga Soup,1.78,kgCO₂e/kg,Poore & Nemecek 2018
+Fisherman Soup,2.88,kgCO₂e/kg,Poore & Nemecek 2018
+Starch (Usi),0.9,kgCO₂e/kg,Poore & Nemecek 2018
+Tuwo Shinkafa,0.075,kgCO₂e/kg,Poore & Nemecek 2018
+Tuwo Masara,0.075,kgCO₂e/kg,Poore & Nemecek 2018
+Miyan Kuka,5,kgCO₂e/kg,Poore & Nemecek 2018
+Miyan Taushe,4.6,kgCO₂e/kg,Poore & Nemecek 2018
+Masa,0.26,kgCO₂e/kg,Poore & Nemecek 2018
+Amala & Ewedu,0.078,kgCO₂e/kg,Poore & Nemecek 2018
+Gbegiri (Bean Soup),0.53,kgCO₂e/kg,Poore & Nemecek 2018
+Efo Riro (Vegetable Soup),9.14,kgCO₂e/kg,Poore & Nemecek 2018
+Iyan (Pounded Yam),0.105,kgCO₂e/kg,Poore & Nemecek 2018
+Obe Ata (Stew),7.6,kgCO₂e/kg,Poore & Nemecek 2018
+,,,
+"Coca‑Cola / Soft Drinks (all colas, sodas)",1.42 ,kgCO2_per_litre,The Guardian (2009) + Ethical Consumer
+"Malt Drinks (e.g., Maltina)",0.9  ,kgCO2_per_litre,FAO + local LCA estimates
+"Beer (e.g., Guinness, Star, Heineken)",0.84–1.3  ,kgCO2_per_litre,"Peer-reviewed LCA studies, Springer 2016"
+"Wine (red, white, rosé)",1.0–1.6  ,kgCO2_per_litre,Wine LCA studies
+Spirits / Distilled Alcohol,1.2–2.0  ,kgCO2_per_litre,Beverage LCA literature
+Pre-packaged Fruit Juices,0.7–1.0  ,kgCO2_per_litre,FAO / beverage LCA reports
+Energy Drinks,1.3–1.8  ,kgCO2_per_litre,LCA industry reports
+Bottled Water,0.05–0.3  ,kgCO2_per_litre,PR Newswire bottled water LCA
+Tea / Coffee (home-made),0.2–0.5  ,kgCO2_per_litre,Literature on beverage LCA / FAO
+Local Herbal / Light Drinks,0.1–0.4  ,kgCO2_per_litre,"Local production assumptions, FAO crop data"

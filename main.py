@@ -4,20 +4,23 @@ import google.generativeai as genai
 from fastapi import FastAPI
 from pydantic import BaseModel
 from typing import List, Optional, Dict
+from dotenv import load_dotenv  # Import this
+
 import knowledge_base
 
-# --- CONFIGURATION ---
-# TODO: Replace with your actual key from https://aistudio.google.com/app/apikey
-os.environ["GEMINI_API_KEY"] = "AIzaSyDyo0mAI0WxV6Y3bkLcMaH_xbasUNJMNOI"
+# Load environment variables from .env file
+load_dotenv()
 
-# Configure AI (Safely)
-try:
-    genai.configure(api_key=os.environ["GEMINI_API_KEY"])
-    model = genai.GenerativeModel('gemini-1.5-flash')
+# Get key securely
+api_key = os.getenv("GEMINI_API_KEY")
+
+if api_key:
+    genai.configure(api_key=api_key) # type: ignore
+    model = genai.GenerativeModel('gemini-2.0-flash') # type: ignore
     HAS_LLM = True
-except Exception:
+else:
     HAS_LLM = False
-    print("⚠️ Warning: Gemini API Key not found. LLM Fallback disabled.")
+    print("⚠️ Warning: GEMINI_API_KEY not found in .env file. LLM Fallback disabled.")
 
 app = FastAPI(title="Carbon AI Service", version="2.5")
 
@@ -100,10 +103,13 @@ async def get_llm_fallback(item_name, category):
 
 @app.post("/api/v1/get-factor", response_model=CustomItemResponse)
 async def get_emission_factor(req: CustomItemRequest):
-    # LAYER 1: Local Knowledge Base (High Accuracy)
+   # LAYER 1: Local Knowledge Base (High Accuracy)
     data = knowledge_base.lookup_factor(req.customItem, req.category)
     
-    if data['factor'] > 0:
+    # FIX: Ignore "Average" defaults so we can ask Gemini
+    is_real_match = data['factor'] > 0 and "Average" not in data['source']
+    
+    if is_real_match:
         # Construct Source Note (Source + Advice)
         full_note = data.get('source', 'Local Database')
         if data.get('note'):
