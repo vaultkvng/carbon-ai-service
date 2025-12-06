@@ -4,10 +4,11 @@ import google.generativeai as genai
 from fastapi import FastAPI
 from pydantic import BaseModel
 from typing import List, Optional, Dict
-from dotenv import load_dotenv  # Import this
+from dotenv import load_dotenv 
 
 import knowledge_base
 
+# --- CONFIGURATION ---
 # Load environment variables from .env file
 load_dotenv()
 
@@ -15,20 +16,26 @@ load_dotenv()
 api_key = os.getenv("GEMINI_API_KEY")
 
 if api_key:
-    genai.configure(api_key=api_key) # type: ignore
-    model = genai.GenerativeModel('gemini-2.0-flash') # type: ignore
-    HAS_LLM = True
+    try:
+        genai.configure(api_key=api_key) # type: ignore
+        # Tries to use the faster 2.0 Flash model
+        model = genai.GenerativeModel('gemini-2.0-flash') # type: ignore
+        HAS_LLM = True
+        print("✅ Gemini AI Connected (2.0 Flash)")
+    except Exception as e:
+        HAS_LLM = False
+        print(f"⚠️ Warning: Gemini connection error: {e}")
 else:
     HAS_LLM = False
     print("⚠️ Warning: GEMINI_API_KEY not found in .env file. LLM Fallback disabled.")
 
-app = FastAPI(title="Carbon AI Service", version="2.5")
+app = FastAPI(title="Carbon AI Service", version="3.0")
 
 # --- DATA MODELS ---
 class CustomItemRequest(BaseModel):
     category: str
     customItem: str
-    quantity: float
+    quantity: float # Included for schema validation, but not used in calculation
     unit: str
     notes: Optional[str] = None
 
@@ -103,10 +110,10 @@ async def get_llm_fallback(item_name, category):
 
 @app.post("/api/v1/get-factor", response_model=CustomItemResponse)
 async def get_emission_factor(req: CustomItemRequest):
-   # LAYER 1: Local Knowledge Base (High Accuracy)
+    # LAYER 1: Local Knowledge Base (High Accuracy)
     data = knowledge_base.lookup_factor(req.customItem, req.category)
     
-    # FIX: Ignore "Average" defaults so we can ask Gemini
+    # LOGIC FIX: Ignore "Average" defaults so we can ask Gemini for a better guess
     is_real_match = data['factor'] > 0 and "Average" not in data['source']
     
     if is_real_match:
