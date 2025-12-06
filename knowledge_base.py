@@ -5,34 +5,33 @@ import os
 from typing import Optional, Dict, List
 
 # --- CONFIGURATION ---
-# The Master Sheet ID
 SHEET_ID = "1OGkCDkj_PxW9MgFV-uO5GTgCSbuUmUaD"
 
-# YOUR SPECIFIC TAB IDs (Updated)
+# TAB IDs
 GIDS = {
     "FOOD": "239254558",
     "TRANSPORT": "1139057214",
     "ENERGY": "1947925401"
 }
 
-# Construct Download URLs
+# Download URLs
 URLS = {
     "FOOD": f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/export?format=csv&gid={GIDS['FOOD']}",
     "TRANSPORT": f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/export?format=csv&gid={GIDS['TRANSPORT']}",
     "ENERGY": f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/export?format=csv&gid={GIDS['ENERGY']}"
 }
 
-# Local Backup Filenames (For Offline Safety)
+# Backup Files
 LOCAL_FILES = {
     "FOOD": "backup_food.csv",
     "TRANSPORT": "backup_transport.csv",
     "ENERGY": "backup_energy.csv"
 }
 
-# Global Database
+# Global DB
 FACTOR_DB = {}
 
-# Static Recommendations
+# Static Tips
 TIPS_DB = {
     "FOOD": [
         {"title": "Try Meatless Mondays", "savings": 1.5},
@@ -52,12 +51,7 @@ TIPS_DB = {
 }
 
 def load_knowledge_base():
-    """
-    Loads data from Google Sheets. 
-    1. Tries to download live data.
-    2. Saves a local backup.
-    3. Falls back to local backup if internet fails.
-    """
+    """Loads data from Google Sheets with offline backup."""
     global FACTOR_DB
     print("🔄 Initializing Knowledge Base...")
     
@@ -65,39 +59,31 @@ def load_knowledge_base():
         backup_file = LOCAL_FILES[category]
         df = None
         
-        # --- ATTEMPT 1: DOWNLOAD FROM GOOGLE (Online) ---
+        # --- ATTEMPT 1: ONLINE SYNC ---
         try:
             print(f"   ☁️  Attempting sync for {category}...")
-            response = requests.get(url, timeout=10) # 10 second timeout
+            response = requests.get(url, timeout=10)
             response.raise_for_status()
-            
-            # Convert to DataFrame
             df = pd.read_csv(io.StringIO(response.content.decode('utf-8')))
-            
-            # SAVE BACKUP (Cache it locally!)
-            df.to_csv(backup_file, index=False)
-            print(f"      ✅ Download success! Saved backup to {backup_file}")
+            df.to_csv(backup_file, index=False) # Cache it
+            print(f"      ✅ Download success! Saved backup.")
             
         except Exception as e:
-            print(f"      ⚠️ Internet/Sheet failed ({e}). Checking backup...")
-            
-            # --- ATTEMPT 2: LOAD FROM BACKUP (Offline) ---
+            print(f"      ⚠️ Internet failed ({e}). Checking backup...")
+            # --- ATTEMPT 2: OFFLINE BACKUP ---
             if os.path.exists(backup_file):
                 try:
                     df = pd.read_csv(backup_file)
-                    print(f"      📂 Loaded from local backup: {backup_file}")
+                    print(f"      📂 Loaded from local backup.")
                 except Exception as ex:
                     print(f"      ❌ Corrupt backup file: {ex}")
-            else:
-                print(f"      ❌ No internet and no backup found for {category}!")
 
-        # --- PROCESS DATA (If df exists) ---
+        # --- PROCESS DATA ---
         if df is not None:
-            # Normalize headers
             df.columns = [str(c).strip().lower() for c in df.columns]
             
-            # Smart Column Detection
-            item_col = next((c for c in df.columns if 'item' in c or 'name' in c or 'appliance' in c or 'mode' in c or 'food' in c), None)
+            # Column Mapping
+            item_col = next((c for c in df.columns if 'item' in c or 'name' in c or 'appliance' in c or 'mode' in c), None)
             factor_col = next((c for c in df.columns if 'factor' in c or 'emission' in c or 'co2' in c), None)
             unit_col = next((c for c in df.columns if 'unit' in c), None)
             source_col = next((c for c in df.columns if 'source' in c or 'ref' in c), None)
@@ -110,17 +96,13 @@ def load_knowledge_base():
                     item_name = str(row[item_col]).strip().lower()
                     
                     try:
-                        # Handle string numbers like "1,200"
                         factor_val = float(str(row[factor_col]).replace(',', ''))
-                    except ValueError:
-                        continue 
+                    except ValueError: continue 
 
-                    # Get Optional Fields
                     unit_val = row[unit_col] if unit_col and not pd.isna(row[unit_col]) else "kgCO2e/unit"
                     source_val = row[source_col] if source_col and not pd.isna(row[source_col]) else "Teammate Research"
                     note_val = row[note_col] if note_col and not pd.isna(row[note_col]) else ""
 
-                    # Add to Database
                     FACTOR_DB[item_name] = {
                         "factor": factor_val,
                         "unit": str(unit_val),
@@ -129,38 +111,23 @@ def load_knowledge_base():
                         "category": category
                     }
                     count += 1
-                print(f"      ✅ Successfully loaded {count} items for {category}")
+                print(f"      ✅ Loaded {count} items.")
             else:
-                print(f"      ❌ Error: Required columns (Item/Factor) missing in {category}")
+                print(f"      ❌ Error: Missing columns in {category}")
 
 def lookup_factor(item_name: str, category: Optional[str] = None):
-    """
-    Fuzzy search for an item in the loaded database.
-    """
     key = item_name.lower().strip()
     
     # 1. Exact Match
-    if key in FACTOR_DB:
-        return FACTOR_DB[key]
+    if key in FACTOR_DB: return FACTOR_DB[key]
     
-    # 2. Partial Match (e.g. "shrimp" inside "shrimp pasta")
+    # 2. Partial Match
     for db_key, data in FACTOR_DB.items():
         if db_key in key or key in db_key:
-            # Optional: Enforce category match if provided
-            if category and data.get('category') != category:
-                continue
+            if category and data.get('category') != category: continue
             return data
             
-    # 3. Fallback Defaults
-    defaults = {
-        "FOOD": {"factor": 3.0, "unit": "kgCO2_per_kg", "source": "Average Food Item"},
-        "TRANSPORT": {"factor": 0.2, "unit": "kgCO2_per_km", "source": "Average Vehicle"},
-        "ENERGY": {"factor": 0.5, "unit": "kgCO2_per_kWh", "source": "Average Grid"},
-        "WATER": {"factor": 0.001, "unit": "kgCO2_per_liter", "source": "Water Treatment"}
-    }
-    if category is None:
-        return {"factor": 0.0, "unit": "unknown", "source": "Unknown"}
-    return defaults.get(category, {"factor": 0.0, "unit": "unknown", "source": "Unknown"})
+    # 3. Fallback
+    return {"factor": 0.0, "unit": "unknown", "source": "Average"}
 
-# Initialize automatically when imported
 load_knowledge_base()
