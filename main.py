@@ -18,7 +18,7 @@ api_key = os.getenv("GEMINI_API_KEY")
 if api_key:
     try:
         genai.configure(api_key=api_key) # type: ignore
-        # Tries to use the faster 2.0 Flash model
+        # Use the faster 2.0 Flash model
         model = genai.GenerativeModel('gemini-2.0-flash') # type: ignore
         HAS_LLM = True
         print("✅ Gemini AI Connected (2.0 Flash)")
@@ -29,39 +29,34 @@ else:
     HAS_LLM = False
     print("⚠️ Warning: GEMINI_API_KEY not found in .env file. LLM Fallback disabled.")
 
-app = FastAPI(title="Carbon AI Service", version="3.0")
+app = FastAPI(title="Carbon AI Service", version="3.1")
 
-# --- DATA MODELS ---
+# --- DATA MODELS (Strictly Matching Peter's Contract) ---
+
+# Use Case 1: Input (No quantity/unit - just the item)
 class CustomItemRequest(BaseModel):
     category: str
     customItem: str
-    quantity: float # Included for schema validation, but not used in calculation
-    unit: str
     notes: Optional[str] = None
 
+# Use Case 1: Output
 class CustomItemResponse(BaseModel):
-    item: str
     category: str
-    estimatedEmissionFactor: float
+    customItem: str
+    emissionFactor: float
     unit: str
     confidence: float
     sourceNote: str
 
-class DailyEmission(BaseModel):
-    date: str
-    co2: float
-
+# Use Case 2: Input (No UserID, Dates, or Daily Logs)
 class WeeklySummaryRequest(BaseModel):
-    userId: int
-    weekStart: str
-    weekEnd: str
     currentWeekTotal: float
     lastWeekTotal: float
     percentageChange: float
     categoryBreakdown: Dict[str, float]
-    dailyEmissions: List[DailyEmission]
     notes: Optional[str] = None
 
+# Use Case 2: Outputs
 class RecommendationItem(BaseModel):
     title: str
     estimatedSavingsPerWeek: float
@@ -113,19 +108,19 @@ async def get_emission_factor(req: CustomItemRequest):
     # LAYER 1: Local Knowledge Base (High Accuracy)
     data = knowledge_base.lookup_factor(req.customItem, req.category)
     
-    # LOGIC FIX: Ignore "Average" defaults so we can ask Gemini for a better guess
+    # Check if it's a real match (not a fallback)
     is_real_match = data['factor'] > 0 and "Average" not in data['source']
     
     if is_real_match:
-        # Construct Source Note (Source + Advice)
+        # Construct Source Note
         full_note = data.get('source', 'Local Database')
         if data.get('note'):
             full_note += f" ({data['note']})"
             
         return CustomItemResponse(
-            item=req.customItem,
             category=req.category,
-            estimatedEmissionFactor=data['factor'],
+            customItem=req.customItem,
+            emissionFactor=data['factor'],
             unit=data['unit'],
             confidence=0.9,
             sourceNote=full_note
@@ -136,9 +131,9 @@ async def get_emission_factor(req: CustomItemRequest):
     confidence = 0.4 if llm_data['factor'] > 0 else 0.0
     
     return CustomItemResponse(
-        item=req.customItem,
         category=req.category,
-        estimatedEmissionFactor=llm_data['factor'],
+        customItem=req.customItem,
+        emissionFactor=llm_data['factor'],
         unit=llm_data.get('unit', 'kgCO2e/unit'),
         confidence=confidence, 
         sourceNote="AI Estimation (Gemini)"
@@ -153,6 +148,14 @@ async def analyze_weekly_summary(req: WeeklySummaryRequest):
         trend_text = f"Your emissions increased by {req.percentageChange}%."
 
     # 2. Identify Highest Category
+    # Handle empty breakdown edge case
+    if not req.categoryBreakdown:
+        return WeeklySummaryResponse(
+            weeklyInsights=WeeklyInsights(trend=trend_text, highestCategory="None", keyObservation="No data logged."),
+            recommendations=[],
+            nextBestAction=NextBestAction(title="Start logging data", estimatedImpact=0, urgency="LOW")
+        )
+
     highest_cat = max(req.categoryBreakdown, key=lambda k: req.categoryBreakdown[k])
     highest_val = req.categoryBreakdown[highest_cat]
 
